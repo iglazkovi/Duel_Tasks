@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            margin: 50px auto;
+            width: 50%;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Загрузка решения</h2>
+    <form id="uploadForm" action="/submit_solution" method="post" enctype="multipart/form-data">
+        <label for="task">Выберите задачу:</label>
+        <select name="task" id="task">
+            {% for task in tasks %}
+            <option value="{{ task[0] }}">{{ task[1] }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="participant">Выберите участника:</label>
+        <select name="participant" id="participant">
+            {% for participant in participants %}
+            <option value="{{ participant[0] }}">{{ participant[1] }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="language">Выберите язык программирования:</label>
+        <select name="language" id="language">
+            <option value="python">Python</option>
+            <option value="cpp">C++</option>
+        </select>
+        <br>
+        <label for="file">Выберите файл:</label>
+        <input type="file" name="file" id="file">
+        <br>
+        <input type="submit" value="Загрузить файл">
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </form>
+
+    <h2>Добавить задачу</h2>
+    <form id="addTaskForm" action="/add_task" method="post" enctype="multipart/form-data">
+        <label for="task_name">Название задачи:</label>
+        <input type="text" name="task_name" id="task_name">
+
+        <br>
+        <label for="language">Выберите язык программирования:</label>
+        <select name="language_author" id="language">
+            <option value="python">Python</option>
+            <option value="cpp">C++</option>
+        </select>
+        <br>
+        <label for="file_author">Выберите файл авторского решения:</label>
+        <input type="file" name="file_author" id="file_author">
+        <br>
+        <label for="file_runner">Выберите файл runner:</label>
+        <input type="file" name="file_runner" id="file_runner">
+        <br>
+        <input type="submit" value="Добавить задачу">
+        <div id="errorMessageAuthor" class="error-message" style="display: none;"></div>
+    </form>
+
+    <h2>Добавить участника</h2>
+    <form id="addParticipantForm" action="/add_participant" method="post">
+        <label for="participant_name">Имя участника:</label>
+        <input type="text" name="participant_name" id="participant_name">
+        <input type="submit" value="Добавить участника">
+    </form>
+
+    <a href="{{ url_for('show_results') }}">Посмотреть результаты</a>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+</body>
+</html>
