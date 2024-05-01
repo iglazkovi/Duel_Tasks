@@ -12,7 +12,7 @@ app.secret_key = 'secret_key'
 
 # Создаем базу данных и таблицы для результатов участников и задач
 def create_tables():
-    conn = sqlite3.connect('competition_results.db')
+    conn = sqlite3.connect('competition_results.sqlite')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS participants 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +56,7 @@ def add_task():
             file_author.save(f'author_solutions/{task_name}_{file_author.filename}')
             file_runner.save(f'runners/{task_name}_{file_runner.filename}')
 
-            conn = sqlite3.connect('competition_results.db')
+            conn = sqlite3.connect('competition_results.sqlite')
             c = conn.cursor()
             c.execute("INSERT INTO tasks (name, author_file_solution, runner_file) VALUES (?, ?, ?)",
                       (task_name, file_author.filename, file_runner.filename,))
@@ -74,7 +74,7 @@ def add_task():
 def add_participant():
     participant_name = request.form['participant_name']
     if participant_name.strip() != '':
-        conn = sqlite3.connect('competition_results.db')
+        conn = sqlite3.connect('competition_results.sqlite')
         c = conn.cursor()
         c.execute("INSERT INTO participants (name) VALUES (?)", (participant_name,))
         conn.commit()
@@ -86,7 +86,7 @@ def add_participant():
 
 
 def get_tasks():
-    conn = sqlite3.connect('competition_results.db')
+    conn = sqlite3.connect('competition_results.sqlite')
     c = conn.cursor()
     c.execute("SELECT * FROM tasks")
     tasks = c.fetchall()
@@ -95,7 +95,7 @@ def get_tasks():
 
 
 def get_participants():
-    conn = sqlite3.connect('competition_results.db')
+    conn = sqlite3.connect('competition_results.sqlite')
     c = conn.cursor()
     c.execute("SELECT * FROM participants")
     participants = c.fetchall()
@@ -142,7 +142,7 @@ def check(sol1_name, sol2_name, runner_name):
 
 
 def save_result(participant_id, task_id, language, participant_solution):
-    conn = sqlite3.connect('competition_results.db')
+    conn = sqlite3.connect('competition_results.sqlite')
     c = conn.cursor()
     c.execute(f"SELECT author_file_solution FROM tasks \
               WHERE id = {task_id}")
@@ -177,7 +177,7 @@ def save_result(participant_id, task_id, language, participant_solution):
 
 @app.route('/results')
 def show_results():
-    conn = sqlite3.connect('competition_results.db')
+    conn = sqlite3.connect('competition_results.sqlite')
     c = conn.cursor()
 
     # Получаем список задач для заголовков таблицы
@@ -215,4 +215,3 @@ def show_results():
 
 
 app.run(debug=True, port=8000)
-# app.run(debug=True, ssl_context=('/Users/ilyaglazkov/PycharmProjects/flaskProject2/server.crt', '/Users/ilyaglazkov/PycharmProjects/flaskProject2/server.key'))
