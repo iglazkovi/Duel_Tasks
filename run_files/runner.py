@@ -1,9 +1,14 @@
 from subprocess import Popen, PIPE
 
 
+class SolException(Exception):
+    pass
+
+
 class Solution:
     def __init__(self, file):
         self.proc = Popen(f"python {file}", stdin=PIPE, stdout=PIPE, shell=True, stderr=PIPE)
+        self.file = file
         self.text = ""
 
     def read_string(self):
@@ -28,7 +33,8 @@ class Solution:
         try:
             return int(lst[0])
         except ValueError:
-            raise ValueError
+            self.proc.kill()
+            raise SolException(self.file)
 
     def read_float(self):
         if not self.text:
@@ -38,14 +44,17 @@ class Solution:
         try:
             return float(lst[0])
         except ValueError:
-            raise ValueError
+            self.proc.kill()
+            raise SolException(self.file)
 
     def input(self):
         self.text = self.proc.stdout.readline().decode("utf-8").strip()
         if self.proc.returncode:
-            raise Exception(self.proc.stderr.read())
+            self.proc.kill()
+            raise SolException(self.file)
         if not self.text:
-            raise Exception("NoOutput")
+            self.proc.kill()
+            raise SolException(self.file)
 
     def output(self, text):
         text = str(text)

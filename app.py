@@ -22,11 +22,17 @@ def create_tables():
                  name TEXT NOT NULL,
                  author_file_solution TEXT NOT NULL,
                  runner_file TEXT NOT NULL)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS solutions 
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    file_name TEXT NOT NULL,
+                    task_id INTEGER NOT NULL,
+                    participant_id INTEGER NOT NULL,
+                    FOREIGN KEY (participant_id) REFERENCES participants(id),
+                    FOREIGN KEY (task_id) REFERENCES tasks(id))''')
     c.execute('''CREATE TABLE IF NOT EXISTS results 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                  participant_id INTEGER NOT NULL,
                  task_id INTEGER NOT NULL,
-                 language TEXT NOT NULL,
                  score INTEGER NOT NULL,
                  FOREIGN KEY (participant_id) REFERENCES participants(id),
                  FOREIGN KEY (task_id) REFERENCES tasks(id))''')
@@ -161,15 +167,11 @@ def save_result(participant_id, task_id, language, participant_solution):
     sol1_name = f'author_solutions/{task_name}_{author_file}'
     sol2_name = f'participants_solutions/{task_name}_{participant_id}_{participant_solution.filename}'
     if check(sol1_name, sol2_name, runner_file):
-        # Просто для примера, результат участника генерируется случайным образом
-        import random
-        score = random.randint(0, 100)
 
-        c.execute("INSERT INTO results (participant_id, task_id, language, score) VALUES (?, ?, ?, ?)",
-                  (participant_id, task_id, language, score))
+        c.execute("INSERT INTO solutions (file_name, task_id, participant_id) VALUES (?, ?, ?)",
+                  (sol2_name, task_id, participant_id))
         conn.commit()
         conn.close()
-
         return True
     else:
         return False
