@@ -7,7 +7,7 @@ class SolException(Exception):
 
 class Solution:
     def __init__(self, file):
-        self.proc = Popen(f"python {file}", stdin=PIPE, stdout=PIPE, shell=True, stderr=PIPE)
+        self.proc = Popen(f"python '{file}'", stdin=PIPE, stdout=PIPE, shell=True, stderr=PIPE)
         self.file = file
         self.text = ""
 
