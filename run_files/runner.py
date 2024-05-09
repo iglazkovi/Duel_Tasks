@@ -1,4 +1,5 @@
 from subprocess import Popen, PIPE
+import subprocess
 
 
 class SolException(Exception):
@@ -6,8 +7,15 @@ class SolException(Exception):
 
 
 class Solution:
-    def __init__(self, file):
-        self.proc = Popen(f"python '{file}'", stdin=PIPE, stdout=PIPE, shell=True, stderr=PIPE)
+    def __init__(self, file, number):
+        number = str(number)
+        if file[-3:] == 'cpp':
+            self.language = 'C++'
+            subprocess.run(["g++", file, "-o", number])
+            self.proc = Popen(['./' + number], stdin=PIPE, stdout=PIPE, shell=True, stderr=PIPE)
+        else:
+            self.language = 'python'
+            self.proc = Popen(f"python '{file}'", stdin=PIPE, stdout=PIPE, shell=True, stderr=PIPE)
         self.file = file
         self.text = ""
 
@@ -60,6 +68,9 @@ class Solution:
         text = str(text)
         self.proc.stdin.write((text + '\n').encode())
         self.proc.stdin.flush()
+
+
+
 
 # sol1 = Solution("test.py")
 # sol2 = Solution("test2.py")

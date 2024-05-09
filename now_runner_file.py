@@ -8,11 +8,16 @@ sol2 = Solution
 def run(sol1_name, sol2_name):
     global sol1, sol2
     try:
-        sol1 = Solution(sol1_name)
-        sol2 = Solution(sol2_name)
+        sol1 = Solution(sol1_name, 1)
+        sol2 = Solution(sol2_name, 2)
+        x1 = sol1.read_int()
+        x2 = sol2.read_int()
         sol1.proc.kill()
         sol2.proc.kill()
-        return 1
+        if x1 < x2:
+            return 1
+        else:
+            return 2
     except SolException as e:
         sol1.proc.kill()
         sol2.proc.kill()
