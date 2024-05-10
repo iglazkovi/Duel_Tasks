@@ -1,5 +1,6 @@
 from subprocess import Popen, PIPE
 import subprocess
+from func_timeout import func_timeout
 
 
 class SolException(Exception):
@@ -7,8 +8,9 @@ class SolException(Exception):
 
 
 class Solution:
-    def __init__(self, file, number):
+    def __init__(self, file, number, timeout):
         number = str(number)
+        self.timeout = timeout
         if file[-3:] == 'cpp':
             self.language = 'C++'
             subprocess.run(["g++", file, "-o", number])
@@ -20,38 +22,54 @@ class Solution:
         self.text = ""
 
     def read_string(self):
-        if not self.text:
-            self.input()
-        lst = self.text.split()
-        self.text = ' '.join(lst[1:])
-        return lst[0]
+        try:
+            if not self.text:
+                func_timeout(self.timeout, self.input)
+            lst = self.text.split()
+            self.text = ' '.join(lst[1:])
+            return lst[0]
+        except:
+            self.proc.kill()
+            raise SolException(self.file)
 
     def read_line(self):
-        if not self.text:
-            self.input()
-        ans = self.text
-        self.text = ''
-        return ans
+        try:
+            if not self.text:
+                func_timeout(self.timeout, self.input)
+            ans = self.text
+            self.text = ''
+            return ans
+        except:
+            self.proc.kill()
+            raise SolException(self.file)
 
     def read_int(self):
-        if not self.text:
-            self.input()
-        lst = self.text.split()
-        self.text = ' '.join(lst[1:])
         try:
-            return int(lst[0])
-        except ValueError:
+            if not self.text:
+                func_timeout(self.timeout, self.input)
+            lst = self.text.split()
+            self.text = ' '.join(lst[1:])
+            try:
+                return int(lst[0])
+            except ValueError:
+                self.proc.kill()
+                raise SolException(self.file)
+        except:
             self.proc.kill()
             raise SolException(self.file)
 
     def read_float(self):
-        if not self.text:
-            self.input()
-        lst = self.text.split()
-        self.text = ' '.join(lst[1:])
         try:
-            return float(lst[0])
-        except ValueError:
+            if not self.text:
+                func_timeout(self.timeout, self.input)
+            lst = self.text.split()
+            self.text = ' '.join(lst[1:])
+            try:
+                return float(lst[0])
+            except ValueError:
+                self.proc.kill()
+                raise SolException(self.file)
+        except:
             self.proc.kill()
             raise SolException(self.file)
 
@@ -68,9 +86,6 @@ class Solution:
         text = str(text)
         self.proc.stdin.write((text + '\n').encode())
         self.proc.stdin.flush()
-
-
-
 
 # sol1 = Solution("test.py")
 # sol2 = Solution("test2.py")

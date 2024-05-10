@@ -8,8 +8,8 @@ sol2 = Solution
 def run(sol1_name, sol2_name):
     global sol1, sol2
     try:
-        sol1 = Solution(sol1_name, 1)
-        sol2 = Solution(sol2_name, 2)
+        sol1 = Solution(sol1_name, 1, 1)
+        sol2 = Solution(sol2_name, 2, 1)
         x1 = sol1.read_int()
         x2 = sol2.read_int()
         sol1.proc.kill()
