@@ -1,6 +1,6 @@
 import shutil
 
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, make_response, after_this_request
 import sqlite3
 import os
 
@@ -41,17 +41,45 @@ def create_tables():
 
 
 create_tables()
-
+admins = []
+# admins.append(***REMOVED***)
 
 @app.route('/')
 def index():
+    uid = request.args.get('uid')
+    username = request.args.get('username')
+    if not uid:
+        uid = request.cookies.get('uid')
+        username = request.cookies.get('username')
+
+    @after_this_request
+    def after_index(response):
+        conn = sqlite3.connect('competition_results.sqlite')
+        c = conn.cursor()
+        c.execute("INSERT OR REPLACE INTO participants (id, name) VALUES (?, ?)", (uid, username,))
+        conn.commit()
+        conn.close()
+        response.set_cookie('uid', str(uid))
+        response.set_cookie('username', str(username))
+        return response
     tasks = get_tasks()
     participants = get_participants()
-    return render_template('upload_file.html', tasks=tasks, participants=participants)
+    if int(uid) in admins:
+        return render_template('upload_file_admin.html', tasks=tasks, participants=participants)
+    else:
+        return render_template('upload_file.html', tasks=tasks, participants=participants)
 
 
 @app.route('/add_task', methods=['POST'])
 def add_task():
+    uid = request.cookies.get('uid')
+    username = request.cookies.get('username')
+
+    @after_this_request
+    def after_add_participant(response):
+        response.set_cookie('uid', uid)
+        response.set_cookie('username', username)
+        return response
     task_name = request.form['task_name']
     language_author = request.form['language_author']
     file_author = request.files['file_author']
@@ -78,6 +106,14 @@ def add_task():
 
 @app.route('/add_participant', methods=['POST'])
 def add_participant():
+    uid = request.cookies.get('uid')
+    username = request.cookies.get('username')
+
+    @after_this_request
+    def after_add_participant(response):
+        response.set_cookie('uid', uid)
+        response.set_cookie('username', username)
+        return response
     participant_name = request.form['participant_name']
     if participant_name.strip() != '':
         conn = sqlite3.connect('competition_results.sqlite')
@@ -88,7 +124,7 @@ def add_participant():
         flash('Участник успешно добавлен', 'success')
     else:
         flash('Пожалуйста, введите имя участника', 'error')
-    return redirect(url_for('index'))
+    return make_response(redirect(url_for('index')))
 
 
 def get_tasks():
@@ -111,10 +147,18 @@ def get_participants():
 
 @app.route('/submit_solution', methods=['POST'])
 def upload_file():
+    uid = request.cookies.get('uid')
+    username = request.cookies.get('username')
+
+    @after_this_request
+    def after_add_participant(response):
+        response.set_cookie('uid', uid)
+        response.set_cookie('username', username)
+        return response
     selected_task_id = int(request.form['task'])
     selected_language = request.form['language']
     file = request.files['file']
-    participant_id = int(request.form['participant'])
+    participant_id = int(uid)
 
     if file and allowed_file(file.filename, selected_language):
         # Сохраняем результаты в базу данных
@@ -167,6 +211,8 @@ def save_result(participant_id, task_id, language, participant_solution):
     sol1_name = f'author_solutions/{task_name}_{author_file}'
     sol2_name = f'participants_solutions/{task_name}_{participant_id}_{participant_solution.filename}'
     if check(sol1_name, sol2_name, runner_file):
+        c.execute(f"DELETE FROM solutions \
+                      WHERE task_id = {task_id} AND participant_id = {participant_id}")
 
         c.execute("INSERT INTO solutions (file_name, task_id, participant_id) VALUES (?, ?, ?)",
                   (sol2_name, task_id, participant_id))
@@ -179,6 +225,14 @@ def save_result(participant_id, task_id, language, participant_solution):
 
 @app.route('/results')
 def show_results():
+    uid = request.cookies.get('uid')
+    username = request.cookies.get('username')
+
+    @after_this_request
+    def after_add_participant(response):
+        response.set_cookie('uid', uid)
+        response.set_cookie('username', username)
+        return response
     conn = sqlite3.connect('competition_results.sqlite')
     c = conn.cursor()
 
@@ -217,4 +271,6 @@ def show_results():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8000)
+    context = ('server.crt', 'server.key')
+
+    app.run(debug=True, port=8000, ssl_context=context)
