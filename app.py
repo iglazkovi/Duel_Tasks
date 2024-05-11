@@ -42,7 +42,7 @@ def create_tables():
 
 create_tables()
 admins = []
-# admins.append(***REMOVED***)
+admins.append(***REMOVED***)
 
 @app.route('/')
 def index():
@@ -87,13 +87,19 @@ def add_task():
     if task_name.strip() != '':
         if file_author and allowed_file(file_author.filename, language_author) and file_runner and allowed_file(
                 file_runner.filename, "python"):
-            file_author.save(f'author_solutions/{task_name}_{file_author.filename}')
-            file_runner.save(f'runners/{task_name}_{file_runner.filename}')
 
             conn = sqlite3.connect('competition_results.sqlite')
             c = conn.cursor()
             c.execute("INSERT INTO tasks (name, author_file_solution, runner_file) VALUES (?, ?, ?)",
                       (task_name, file_author.filename, file_runner.filename,))
+
+            c.execute(f"SELECT id FROM tasks \
+                                  WHERE name = {task_name}")
+            task_id = c.fetchall()[0][0]
+
+            file_author.save(f'author_solutions/{str(task_id)}_{task_name}_{file_author.filename}')
+            file_runner.save(f'runners/{str(task_id)}_{task_name}_{file_runner.filename}')
+
             conn.commit()
             conn.close()
             flash('Задача успешно добавлена', 'success')
@@ -102,29 +108,6 @@ def add_task():
     else:
         flash('Пожалуйста, введите название задачи', 'error')
     return redirect(url_for('index'))
-
-
-@app.route('/add_participant', methods=['POST'])
-def add_participant():
-    uid = request.cookies.get('uid')
-    username = request.cookies.get('username')
-
-    @after_this_request
-    def after_add_participant(response):
-        response.set_cookie('uid', uid)
-        response.set_cookie('username', username)
-        return response
-    participant_name = request.form['participant_name']
-    if participant_name.strip() != '':
-        conn = sqlite3.connect('competition_results.sqlite')
-        c = conn.cursor()
-        c.execute("INSERT INTO participants (name) VALUES (?)", (participant_name,))
-        conn.commit()
-        conn.close()
-        flash('Участник успешно добавлен', 'success')
-    else:
-        flash('Пожалуйста, введите имя участника', 'error')
-    return make_response(redirect(url_for('index')))
 
 
 def get_tasks():
@@ -204,12 +187,13 @@ def save_result(participant_id, task_id, language, participant_solution):
 
     c.execute(f"SELECT runner_file FROM tasks \
                       WHERE id = {task_id}")
-    runner_file = f'runners/{task_name}_{c.fetchall()[0][0]}'
 
-    participant_solution.save(f'participants_solutions/{task_name}_{participant_id}_{participant_solution.filename}')
+    runner_file = f'runners/{str(task_id)}_{task_name}_{c.fetchall()[0][0]}'
+    sol1_name = f'author_solutions/{str(task_id)}_{task_name}_{author_file}'
+    sol2_name = f'participants_solutions/{str(task_id)}_{task_name}_{participant_id}_{participant_solution.filename}'
 
-    sol1_name = f'author_solutions/{task_name}_{author_file}'
-    sol2_name = f'participants_solutions/{task_name}_{participant_id}_{participant_solution.filename}'
+    participant_solution.save(sol2_name)
+
     if check(sol1_name, sol2_name, runner_file):
         c.execute(f"DELETE FROM solutions \
                       WHERE task_id = {task_id} AND participant_id = {participant_id}")
