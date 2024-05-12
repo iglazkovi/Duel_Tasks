@@ -42,7 +42,6 @@ def create_tables():
 
 create_tables()
 admins = []
-admins.append(***REMOVED***)
 
 @app.route('/')
 def index():
@@ -104,7 +103,7 @@ def add_task():
             conn.close()
             flash('Задача успешно добавлена', 'success')
         else:
-            return 'Ошибка: Неверный формат файла или язык программирования'
+            flash('Ошибка: Неверный формат файла или язык программирования')
     else:
         flash('Пожалуйста, введите название задачи', 'error')
     return redirect(url_for('index'))
@@ -148,9 +147,12 @@ def upload_file():
         if save_result(participant_id, selected_task_id, selected_language, file):
             return redirect(url_for('show_results'))
         else:
-            return 'Ошибка: ваше решение не соответствует протоколу взаимодействия'
+            flash('Ошибка: ваше решение не соответствует протоколу взаимодействия')
+            return redirect(url_for('index'))
+
     else:
-        return 'Ошибка: Неверный формат файла или язык программирования'
+        flash('Ошибка: Неверный формат файла или язык программирования')
+        return redirect(url_for('index'))
 
 
 def allowed_file(filename, language):
