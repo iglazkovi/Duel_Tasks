@@ -12,15 +12,16 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
-
 main_url = "url to server"
+
 
 # Define a `/start` command handler.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     buttons = [KeyboardButton(
-                text="Submit solution!",
-                web_app=WebAppInfo(url=f"{main_url}?uid={update.message.from_user.id}&username={update.message.from_user.username}"),
-            ),
+        text="Submit solution!",
+        web_app=WebAppInfo(
+            url=f"{main_url}?uid={update.message.from_user.id}&username={update.message.from_user.username}"),
+    ),
         KeyboardButton(
             text="Show results!",
             web_app=WebAppInfo(

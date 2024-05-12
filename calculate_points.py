@@ -27,21 +27,47 @@ for task in tasks:
     c.execute(f"SELECT * FROM solutions \
                   WHERE task_id = {task_id}")
     solutions = c.fetchall()
+    participantId_solIdx = dict()
+    for participant in participants:
+        participantId_solIdx[participant[0]] = -1
     for i in range(len(solutions)):
-        sol1 = solutions[i]
-        for j in range(i + 1, len(solutions)):
-            sol2 = solutions[j]
-            path_to_sol1 = sol1[1]
-            path_to_sol2 = sol2[1]
-            task_name = task[1]
-            path_to_task_runner = f'runners/{task_name}_{task[3]}'
-            participant1_id = sol1[3]
-            participant2_id = sol2[3]
-            result = run(path_to_sol1, path_to_sol2, path_to_task_runner)
-            if result == 1 or result == -2:
-                data[participant1_id][task_id] += 1
+        participantId_solIdx[solutions[i][3]] = i
+    for part1 in range(len(participants)):
+        i = participantId_solIdx[participants[part1][0]]
+        for part2 in range(part1 + 1, len(participants)):
+            j = participantId_solIdx[participants[part2][0]]
+            if i == -1:
+                if j == -1:
+                    continue
+                else:
+                    sol2 = solutions[j]
+                    path_to_sol2 = sol2[1]
+                    participant2_id = sol2[3]
+                    data[participant2_id][task_id] += 1
             else:
-                data[participant2_id][task_id] += 1
+                if j == -1:
+                    sol1 = solutions[i]
+                    path_to_sol1 = sol1[1]
+                    participant1_id = sol1[3]
+                    data[participant1_id][task_id] += 1
+                else:
+                    sol1 = solutions[i]
+                    path_to_sol1 = sol1[1]
+                    participant1_id = sol1[3]
+
+                    sol2 = solutions[j]
+                    path_to_sol2 = sol2[1]
+                    participant2_id = sol2[3]
+
+                    task_name = task[1]
+                    path_to_task_runner = f'runners/{task_name}_{task[3]}'
+
+                    result = run(path_to_sol1, path_to_sol2, path_to_task_runner)
+                    if result == 1 or result == -2:
+                        data[participant1_id][task_id] += 1
+                    else:
+                        data[participant2_id][task_id] += 1
+
 print(data)
 c.execute("DELETE FROM results")
 for task in tasks:
