@@ -1,6 +1,6 @@
 import shutil
 
-from flask import Flask, render_template, request, redirect, url_for, flash, make_response, after_this_request
+from flask import Flask, render_template, request, redirect, url_for, flash, after_this_request
 import sqlite3
 import os
 
@@ -43,6 +43,7 @@ def create_tables():
 create_tables()
 admins = []
 
+
 @app.route('/')
 def index():
     uid = request.args.get('uid')
@@ -61,6 +62,7 @@ def index():
         response.set_cookie('uid', str(uid))
         response.set_cookie('username', str(username))
         return response
+
     tasks = get_tasks()
     participants = get_participants()
     if int(uid) in admins:
@@ -79,6 +81,7 @@ def add_task():
         response.set_cookie('uid', uid)
         response.set_cookie('username', username)
         return response
+
     task_name = request.form['task_name']
     language_author = request.form['language_author']
     file_author = request.files['file_author']
@@ -137,6 +140,7 @@ def upload_file():
         response.set_cookie('uid', uid)
         response.set_cookie('username', username)
         return response
+
     selected_task_id = int(request.form['task'])
     selected_language = request.form['language']
     file = request.files['file']
@@ -144,7 +148,7 @@ def upload_file():
 
     if file and allowed_file(file.filename, selected_language):
         # Сохраняем результаты в базу данных
-        if save_result(participant_id, selected_task_id, selected_language, file):
+        if save_result(participant_id, selected_task_id, file):
             return redirect(url_for('show_results'))
         else:
             flash('Ошибка: ваше решение не соответствует протоколу взаимодействия')
@@ -176,7 +180,7 @@ def check(sol1_name, sol2_name, runner_name):
     return False
 
 
-def save_result(participant_id, task_id, language, participant_solution):
+def save_result(participant_id, task_id, participant_solution):
     conn = sqlite3.connect('competition_results.sqlite')
     c = conn.cursor()
     c.execute(f"SELECT author_file_solution FROM tasks \
@@ -219,6 +223,7 @@ def show_results():
         response.set_cookie('uid', uid)
         response.set_cookie('username', username)
         return response
+
     conn = sqlite3.connect('competition_results.sqlite')
     c = conn.cursor()
 
