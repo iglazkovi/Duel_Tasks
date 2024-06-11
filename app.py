@@ -42,6 +42,7 @@ def create_tables():
 
 create_tables()
 admins = []
+# admins.append() add admins ids in Telegram
 
 
 @app.route('/')
@@ -92,18 +93,15 @@ def add_task():
 
             conn = sqlite3.connect('competition_results.sqlite')
             c = conn.cursor()
-            c.execute("INSERT INTO tasks (name, author_file_solution, runner_file) VALUES (?, ?, ?)",
-                      (task_name, file_author.filename, file_runner.filename,))
-
-            c.execute(f"SELECT id FROM tasks \
-                                  WHERE name = {task_name}")
+            c.execute("INSERT INTO tasks (name, author_file_solution, runner_file) VALUES (?, ?, ?)", (task_name, file_author.filename, file_runner.filename,))
+            c.execute('SELECT last_insert_rowid()')
             task_id = c.fetchall()[0][0]
+            conn.commit()
+            conn.close()
 
             file_author.save(f'author_solutions/{str(task_id)}_{task_name}_{file_author.filename}')
             file_runner.save(f'runners/{str(task_id)}_{task_name}_{file_runner.filename}')
 
-            conn.commit()
-            conn.close()
             flash('Задача успешно добавлена', 'success')
         else:
             flash('Ошибка: Неверный формат файла или язык программирования')
@@ -175,7 +173,7 @@ def allowed_file(filename, language):
 def check(sol1_name, sol2_name, runner_name):
     shutil.copy(runner_name, f'now_runner/now_runner_file.py')
     from now_runner import now_runner_file
-    if now_runner_file.run(sol1_name, sol2_name) > 0:
+    if now_runner_file.run(sol1_name, sol2_name) >= 0:
         return True
     return False
 
@@ -263,5 +261,4 @@ def show_results():
 
 if __name__ == "__main__":
     context = ('server.crt', 'server.key')
-
-    app.run(debug=True, port=8000, ssl_context=context)
+    app.run(debug=True, port=5000, ssl_context=context)

@@ -60,13 +60,17 @@ for task in tasks:
                     participant2_id = sol2[3]
 
                     task_name = task[1]
-                    path_to_task_runner = f'runners/{task_name}_{task[3]}'
+                    path_to_task_runner = f'runners/{str(task_id)}_{task_name}_{task[3]}'
 
                     result = run(path_to_sol1, path_to_sol2, path_to_task_runner)
                     if result == 1 or result == -2:
-                        data[participant1_id][task_id] += 1
+                        data[participant1_id][task_id] += 3
+                    elif result == 2 or result == -1:
+                        data[participant2_id][task_id] += 3
                     else:
+                        data[participant1_id][task_id] += 1
                         data[participant2_id][task_id] += 1
+
 
 print(data)
 c.execute("DELETE FROM results")

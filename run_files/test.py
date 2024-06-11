@@ -1,3 +1,3 @@
-import time
-time.sleep(2)
-print(1)
+n = int(input())
+for i in range(n):
+    print('rock')
