@@ -6,8 +6,8 @@ A system for creating contests in competetive programming with interactive tasks
 Unlike regular interactive tasks, in duel tasks the participants' solutions collide directly. Instead of interacting with a standard interactor, a participant's solution interacts with another participant's solution. Compliance with the interaction protocol is checked in the runner - an analogue of the interactor program in a regular task. At the same time, from the participant's point of view, the way the program is written is no different.
 
 An example of the implementation of the game Rock-Paper-Scissors can be found in the source files:
-- [Runner file] (now_runner_file.py)
-- [Solutions files] (run_files)
+- [Runner file](now_runner_file.py)
+- [Solutions files](run_files)
 
 ## How to write runners
 
