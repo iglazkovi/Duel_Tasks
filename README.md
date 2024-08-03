@@ -1,6 +1,6 @@
 # Smart Games
 
-A system for creating contests in sports programming with interactive tasks of a new type (duel tasks).
+A system for creating contests in competetive programming with interactive tasks of a new type (duel tasks).
 
 ## Duel Tasks
 Unlike regular interactive tasks, in duel tasks the participants' solutions collide directly. Instead of interacting with a standard interactor, a participant's solution interacts with another participant's solution. Compliance with the interaction protocol is checked in the runner - an analogue of the interactor program in a regular task. At the same time, from the participant's point of view, the way the program is written is no different.
