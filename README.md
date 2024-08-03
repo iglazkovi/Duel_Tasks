@@ -45,6 +45,23 @@ def run(sol1_name, sol2_name):
 - -2 - player 2 violated the interaction protocol
 
 
+# Running
+- Run the app.py file, having previously specified the id of the admins in Telegram who will be able to add new tasks to the contest:
+    ```bash
+    python3 app.py
+    ```
+
+- Preliminarily create the token.txt file, in which you specify the token of your bot in Telegram. Also in the bot.py file, specify the address to the main page of the server where app.py is running. Run the bot:
+    ```bash
+    python3 bot.py
+    ```
+
+- To recalculate the points of the contest participants and update the results table, run [calculate_points.py](calculate_points.py):
+    ```bash
+    python3 calculate_points.py
+    ```
+
+
 ## Supported languages
 - С++
 - Python
