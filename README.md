@@ -1,4 +1,4 @@
-# Smart Games
+# Duel Tasks
 
 A system for creating contests in competetive programming with interactive tasks of a new type (duel tasks) in the Telegram bot interface.
 
